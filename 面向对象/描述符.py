@@ -168,26 +168,71 @@
 # c = C()
 # print(c.x)
 
+# class D:
+#     def __set_name__(self, owner, name):
+#         self.name = name
+#
+#     def __get__(self, instance, owner):
+#         print("__get__")
+#         return instance.__dict__.get(self.name)
+#
+#     def __set__(self, instance, value):
+#         print("__set__")
+#         instance.__dict__[self.name] = value
+#
+#
+# class C:
+#     x = D()
+#
+#
+# c = C()
+# print(c.x)
+# print(c.__dict__)
+# c.x = 500
+# print(c.__dict__)
+# print(c.x)
+
+# class C:
+#     def func(self, x):
+#         return x
+#
+#
+# c = C()
+# print(c.func)
+# print(C.func)
+
+class MethodType:
+    def __init__(self, func, obj):
+        self.__func__ = func
+        self.__self__ = obj
+
+    def __call__(self, *args, **kwargs):
+        func = self.__func__
+        obj = self.__self__
+        print("小白")
+        return func(obj, *args, **kwargs)
+
+
+class ClassMethod:
+    def __init__(self, f):
+        self.f = f
+
+    def __get__(self, obj, cls=None):
+        if cls is None:
+            print("旺财")
+            cls = type(obj)
+        if hasattr(type(self.f), "__get__"):
+            print(f"来福，type(self.f) -> {type(self.f)}")
+            return self.f.__get__(cls, cls)
+        return MethodType(self.f, cls)
+
+
 class D:
-    def __set_name__(self, owner, name):
-        self.name = name
-
-    def __get__(self, instance, owner):
-        print("__get__")
-        return instance.__dict__.get(self.name)
-
-    def __set__(self, instance, value):
-        print("__set__")
-        instance.__dict__[self.name] = value
+    @ClassMethod
+    # @property
+    def __doc__(cls):
+        return f"from class {cls.__name__}"
 
 
-class C:
-    x = D()
-
-
-c = C()
-print(c.x)
-print(c.__dict__)
-c.x = 500
-print(c.__dict__)
-print(c.x)
+d = D()
+print(d.__doc__)
